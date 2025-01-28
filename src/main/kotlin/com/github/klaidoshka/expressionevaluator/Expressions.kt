@@ -50,6 +50,84 @@ class Expressions(
         )
     }
 
+    /**
+     * Sets an operator to the expressions' evaluator. If the operator already exists, it will be
+     * overwritten.
+     *
+     * @param operator to set
+     */
+    fun setOperator(operator: ExpressionOperator) {
+        operators[operator.operator] = operator
+    }
+
+    /**
+     * Set the operators to use in the expression
+     *
+     * @param operators to use
+     */
+    fun setOperators(operators: List<ExpressionOperator>) {
+        this.operators.clear()
+        operators.forEach { operator -> setOperator(operator) }
+    }
+
+    /**
+     * Sets a parameter to the expressions' evaluator. If the parameter already exists, it will be
+     * overwritten.
+     *
+     * @param parameter to set
+     */
+    fun setParameter(parameter: Pair<String, Any>) {
+        parameters[parameter.first] = parameter.second
+    }
+
+    /**
+     * Set the parameters to use in the expression
+     *
+     * @param parameters to use
+     */
+    fun setParameters(parameters: Map<String, Any>) {
+        this.parameters.clear()
+        parameters.forEach { (name, value) -> setParameter(name to value) }
+    }
+
+    /**
+     * Add a preprocessor to the expressions' evaluator
+     *
+     * @param preprocessor to add
+     */
+    fun addPreprocessor(preprocessor: ExpressionPreprocessor) {
+        preprocessors.add(preprocessor)
+    }
+
+    /**
+     * Set the preprocessors to use in the expression
+     *
+     * @param preprocessors to use
+     */
+    fun setPreprocessors(preprocessors: List<ExpressionPreprocessor>) {
+        this.preprocessors.clear()
+        preprocessors.forEach { preprocessor -> addPreprocessor(preprocessor) }
+    }
+
+    /**
+     * Add a postprocessor to the expressions' evaluator
+     *
+     * @param postprocessor to add
+     */
+    fun addPostprocessor(postprocessor: ExpressionPostprocessor) {
+        postprocessors.add(postprocessor)
+    }
+
+    /**
+     * Set the postprocessors to use in the expression
+     *
+     * @param postprocessors to use
+     */
+    fun setPostprocessors(postprocessors: List<ExpressionPostprocessor>) {
+        this.postprocessors.clear()
+        postprocessors.forEach { postprocessor -> addPostprocessor(postprocessor) }
+    }
+
     companion object {
         // Default operators to use in the expression
         val DEFAULT_OPERATORS = listOf(

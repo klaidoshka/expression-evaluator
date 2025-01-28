@@ -12,9 +12,12 @@ object ExpressionTokenizer {
      * @return list of tokens
      */
     fun tokenize(expression: String, operators: Set<String>): List<String> {
+        val operatorsSorted = operators.sortedByDescending { it.length }
         val tokens = mutableListOf<String>()
         val buffer = StringBuilder()
         var i = 0
+        var insideQuotes = false
+        var quoteChar: Char? = null
 
         fun addBufferAsToken() {
             if (buffer.isNotEmpty()) {
@@ -24,34 +27,54 @@ object ExpressionTokenizer {
         }
 
         while (i < expression.length) {
-            when (val char = expression[i]) {
-                ' ', '\t' -> Unit
+            val char = expression[i]
 
-                '(', ')' -> {
+            if (insideQuotes) {
+                // Append everything inside quotes
+                if (char == quoteChar) {
+                    insideQuotes = false
+                    buffer.append("\"")
                     addBufferAsToken()
-                    tokens.add(char.toString())
+                } else {
+                    buffer.append(char)
                 }
+            } else {
+                when (char) {
+                    ' ', '\t' -> Unit
 
-                else -> {
-                    var foundOperator: String? = null
+                    '(', ')' -> {
+                        addBufferAsToken()
+                        tokens.add(char.toString())
+                    }
                     
-                    for (operator in operators) {
-                        if (expression.startsWith(operator, i)) {
-                            foundOperator = operator
-                            break
-                        }
+                    '"', '\'' -> {
+                        addBufferAsToken()
+                        insideQuotes = true
+                        quoteChar = char
+                        buffer.append("\"")
                     }
 
-                    if (foundOperator != null) {
-                        addBufferAsToken()
-                        tokens.add(foundOperator)
-                        i += foundOperator.length - 1 // Adjust index for operator length
-                    } else {
-                        buffer.append(char)
+                    else -> {
+                        var foundOperator: String? = null
+
+                        for (operator in operatorsSorted) {
+                            if (expression.startsWith(operator, i)) {
+                                foundOperator = operator
+                                break
+                            }
+                        }
+
+                        if (foundOperator != null) {
+                            addBufferAsToken()
+                            tokens.add(foundOperator)
+                            i += foundOperator.length - 1 // Adjust index for operator length
+                        } else {
+                            buffer.append(char)
+                        }
                     }
                 }
             }
-            
+
             i++
         }
 
