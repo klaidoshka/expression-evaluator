@@ -8,7 +8,6 @@ import java.math.BigDecimal
  */
 object NotEqualsOperator : ExpressionOperator {
     override val operator = "!="
-
     override fun evaluate(left: Any, right: Any): Boolean {
         return if (left is Number && right is Number) {
             val leftDecimal = left as? BigDecimal ?: left.toDouble().toBigDecimal()

@@ -8,7 +8,8 @@ import com.github.klaidoshka.expressionevaluator.preprocessor.LiberalBooleanPrep
 class Expressions(
     operators: List<ExpressionOperator> = DEFAULT_OPERATORS,
     parameters: Map<String, Any> = emptyMap(),
-    preprocessors: List<ExpressionPreprocessor> = DEFAULT_PREPROCESSORS
+    preprocessors: List<ExpressionPreprocessor> = DEFAULT_PREPROCESSORS,
+    postprocessors: List<ExpressionPostprocessor> = emptyList()
 ) {
     // Map of operators by their symbol
     private val operators = operators.associateBy { it.operator }.toMutableMap()
@@ -18,6 +19,9 @@ class Expressions(
 
     // List of preprocessors to apply to the expression before evaluation
     private val preprocessors = preprocessors.toMutableList()
+
+    // List of postprocessors to apply to the expression after tokenization
+    private val postprocessors = postprocessors.toMutableList()
 
     /**
      * Evaluate a string expression with the given parameters and preprocessors
@@ -31,7 +35,13 @@ class Expressions(
             preprocessor.preprocess(acc)
         }
 
-        val tokens = ExpressionTokenizer(preprocessedExpression)
+        var tokens = ExpressionTokenizer.tokenize(preprocessedExpression, operators.keys)
+
+        postprocessors.forEach { postprocessor ->
+            tokens = tokens.map {
+                postprocessor.postprocess(it)
+            }
+        }
 
         return ExpressionEvaluator.evaluateExpression(
             PeekingIterator(tokens.iterator()),
@@ -43,12 +53,17 @@ class Expressions(
     companion object {
         // Default operators to use in the expression
         val DEFAULT_OPERATORS = listOf(
+            AndOperator,
+            ContainsOperator,
+            EndsWithOperator,
             EqualsOperator,
-            NotEqualsOperator,
+            GreaterOperator,
+            GreaterOrEqualOperator,
             LesserOperator,
             LesserOrEqualOperator,
-            GreaterOperator,
-            GreaterOrEqualOperator
+            NotEqualsOperator,
+            OrOperator,
+            StartsWithOperator
         )
 
         // Default preprocessors to use in the expression
