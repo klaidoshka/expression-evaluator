@@ -11,9 +11,12 @@ dependencies { implementation(kotlin("stdlib-jdk8")) }
 kotlin { jvmToolchain(21) }
 
 publishing {
-    repositories {
-        maven {
-            url = uri("https://jitpack.io")
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = "com.github.klaidoshka"
+            artifactId = "expression-evaluator"
+            version = "1.0.0"
         }
     }
 }
